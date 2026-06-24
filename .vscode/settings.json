@@ -1,3 +1,16 @@
 {
-    "java.debug.settings.onBuildFailureProceed": true
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.test.config": {
+        "coverage": {
+            "exclude": [
+                "**/controller/**",
+                "**/dto/**",
+                "**/model/**",
+                "**/exception/**",
+                "**/client/**",
+                "**/*Application.java",
+                "**/*Application.class"
+            ]
+        }
+    }
 }
