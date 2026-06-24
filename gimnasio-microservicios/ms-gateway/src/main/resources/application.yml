@@ -1,0 +1,173 @@
+# =====================================================================
+# ms-gateway - Configuracion principal
+# =====================================================================
+# Este archivo usa YAML (en vez de .properties) porque la configuracion
+# de rutas de Spring Cloud Gateway es jerarquica (lista de rutas, cada una
+# con su propia lista de predicados y filtros) y YAML representa mucho
+# mejor esa jerarquia que un .properties plano.
+#
+# Perfiles disponibles (ver bloques --- mas abajo):
+#   dev    -> apunta a los microservicios en localhost (ejecucion local,
+#             ya sea desde el IDE o con `mvn spring-boot:run`)
+#   docker -> apunta a los microservicios por su nombre de servicio en
+#             docker-compose.yml (la red interna de Docker resuelve esos
+#             nombres como si fueran hostnames)
+# =====================================================================
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ms-gateway
+  profiles:
+    active: dev
+  cloud:
+    gateway:
+      # Evita que el Gateway intente descubrir rutas automaticamente vía
+      # Eureka/Service Discovery: las rutas se definen explicitamente abajo
+      # porque este proyecto no usa un Service Registry.
+      discovery:
+        locator:
+          enabled: false
+      default-filters:
+        - AddResponseHeader=X-Gateway, ms-gateway
+      routes:
+        - id: ms-socios
+          uri: ${ms-socios.uri}
+          predicates:
+            - Path=/api/socios/**
+          filters:
+            - AddRequestHeader=X-Origen-Servicio, ms-gateway
+
+        - id: ms-membresias
+          uri: ${ms-membresias.uri}
+          predicates:
+            - Path=/api/membresias/**
+          filters:
+            - AddRequestHeader=X-Origen-Servicio, ms-gateway
+
+        - id: ms-planes-membresia
+          uri: ${ms-membresias.uri}
+          predicates:
+            - Path=/api/planes/**
+          filters:
+            - AddRequestHeader=X-Origen-Servicio, ms-gateway
+
+        - id: ms-instructores
+          uri: ${ms-instructores.uri}
+          predicates:
+            - Path=/api/instructores/**
+
+        - id: ms-clases
+          uri: ${ms-clases.uri}
+          predicates:
+            - Path=/api/clases/**
+
+        - id: ms-reservas
+          uri: ${ms-reservas.uri}
+          predicates:
+            - Path=/api/reservas/**
+
+        - id: ms-pagos
+          uri: ${ms-pagos.uri}
+          predicates:
+            - Path=/api/pagos/**
+
+        - id: ms-equipos
+          uri: ${ms-equipos.uri}
+          predicates:
+            - Path=/api/equipos/**
+
+        - id: ms-rutinas
+          uri: ${ms-rutinas.uri}
+          predicates:
+            - Path=/api/rutinas/**
+
+        - id: ms-asistencias
+          uri: ${ms-asistencias.uri}
+          predicates:
+            - Path=/api/asistencias/**
+
+        - id: ms-sucursales
+          uri: ${ms-sucursales.uri}
+          predicates:
+            - Path=/api/sucursales/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,gateway
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.gimnasio.gateway: INFO
+    org.springframework.cloud.gateway: INFO
+
+---
+# =====================================================================
+# Perfil: dev (ejecucion local, todo en localhost con los puertos fijos
+# definidos en cada microservicio)
+# =====================================================================
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+ms-socios:
+  uri: http://localhost:8081
+ms-membresias:
+  uri: http://localhost:8082
+ms-instructores:
+  uri: http://localhost:8083
+ms-clases:
+  uri: http://localhost:8084
+ms-reservas:
+  uri: http://localhost:8085
+ms-pagos:
+  uri: http://localhost:8086
+ms-equipos:
+  uri: http://localhost:8087
+ms-rutinas:
+  uri: http://localhost:8088
+ms-asistencias:
+  uri: http://localhost:8089
+ms-sucursales:
+  uri: http://localhost:8090
+
+---
+# =====================================================================
+# Perfil: docker (ejecucion vía docker-compose.yml en la raiz del repo).
+# Los hostnames corresponden al "service name" de cada contenedor en
+# docker-compose.yml; Docker resuelve esos nombres dentro de su red
+# interna automaticamente (no se necesita IP fija).
+# =====================================================================
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+ms-socios:
+  uri: http://ms-socios:8081
+ms-membresias:
+  uri: http://ms-membresias:8082
+ms-instructores:
+  uri: http://ms-instructores:8083
+ms-clases:
+  uri: http://ms-clases:8084
+ms-reservas:
+  uri: http://ms-reservas:8085
+ms-pagos:
+  uri: http://ms-pagos:8086
+ms-equipos:
+  uri: http://ms-equipos:8087
+ms-rutinas:
+  uri: http://ms-rutinas:8088
+ms-asistencias:
+  uri: http://ms-asistencias:8089
+ms-sucursales:
+  uri: http://ms-sucursales:8090

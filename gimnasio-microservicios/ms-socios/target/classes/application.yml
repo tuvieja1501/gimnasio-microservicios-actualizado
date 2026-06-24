@@ -1,0 +1,60 @@
+# =====================================================================
+# ms-socios - configuracion (YAML con perfiles dev/docker)
+# =====================================================================
+server:
+  port: 8081
+
+spring:
+  application:
+    name: ms-socios
+  profiles:
+    active: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: never
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    com.gimnasio: DEBUG
+    org.hibernate.SQL: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+# Perfil dev: ejecucion local (IDE o `mvn spring-boot:run`), Postgres en localhost
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gimnasio_socios
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+---
+# Perfil docker: ejecucion vía docker-compose.yml, hostname = nombre del
+# servicio de la base de datos definido en docker-compose.yml
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://db-socios:5432/gimnasio_socios
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver

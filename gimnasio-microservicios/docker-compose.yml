@@ -1,0 +1,212 @@
+# =====================================================================
+# docker-compose.yml - Orquestacion local de todo el ecosistema
+# =====================================================================
+# Levanta:
+#  - 1 base de datos PostgreSQL por microservicio (10 en total), cada una
+#    aislada en su propio contenedor (principio de "Database per Service"
+#    de la arquitectura de microservicios: cada servicio es duenio de sus
+#    propios datos).
+#  - Los 10 microservicios de negocio.
+#  - El API Gateway (ms-gateway), unico punto de entrada expuesto al
+#    exterior en el puerto 8080.
+#
+# Uso:
+#   docker compose up --build        (primera vez o tras cambiar codigo)
+#   docker compose up -d             (en segundo plano)
+#   docker compose down              (detener y eliminar contenedores)
+#   docker compose logs -f ms-socios (ver logs de un servicio puntual)
+# =====================================================================
+
+services:
+
+  # ---------- Bases de datos (una por microservicio) ----------
+  db-socios:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gimnasio_socios
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_socios_data:/var/lib/postgresql/data
+
+  db-membresias:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gimnasio_membresias
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_membresias_data:/var/lib/postgresql/data
+
+  db-instructores:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gimnasio_instructores
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_instructores_data:/var/lib/postgresql/data
+
+  db-clases:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gimnasio_clases
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_clases_data:/var/lib/postgresql/data
+
+  db-reservas:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gimnasio_reservas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_reservas_data:/var/lib/postgresql/data
+
+  db-pagos:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gimnasio_pagos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_pagos_data:/var/lib/postgresql/data
+
+  db-equipos:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gimnasio_equipos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_equipos_data:/var/lib/postgresql/data
+
+  db-rutinas:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gimnasio_rutinas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_rutinas_data:/var/lib/postgresql/data
+
+  db-asistencias:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gimnasio_asistencias
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_asistencias_data:/var/lib/postgresql/data
+
+  db-sucursales:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gimnasio_sucursales
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_sucursales_data:/var/lib/postgresql/data
+
+  # ---------- Microservicios de negocio ----------
+  ms-socios:
+    build: ./ms-socios
+    ports: ["8081:8081"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on: [db-socios]
+
+  ms-membresias:
+    build: ./ms-membresias
+    ports: ["8082:8082"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on: [db-membresias, ms-socios]
+
+  ms-instructores:
+    build: ./ms-instructores
+    ports: ["8083:8083"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on: [db-instructores]
+
+  ms-clases:
+    build: ./ms-clases
+    ports: ["8084:8084"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on: [db-clases, ms-instructores, ms-sucursales]
+
+  ms-reservas:
+    build: ./ms-reservas
+    ports: ["8085:8085"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on: [db-reservas, ms-socios, ms-clases, ms-membresias]
+
+  ms-pagos:
+    build: ./ms-pagos
+    ports: ["8086:8086"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on: [db-pagos, ms-socios]
+
+  ms-equipos:
+    build: ./ms-equipos
+    ports: ["8087:8087"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on: [db-equipos, ms-sucursales]
+
+  ms-rutinas:
+    build: ./ms-rutinas
+    ports: ["8088:8088"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on: [db-rutinas, ms-socios, ms-instructores]
+
+  ms-asistencias:
+    build: ./ms-asistencias
+    ports: ["8089:8089"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on: [db-asistencias, ms-socios, ms-sucursales]
+
+  ms-sucursales:
+    build: ./ms-sucursales
+    ports: ["8090:8090"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on: [db-sucursales]
+
+  # ---------- API Gateway (unico puerto expuesto al exterior) ----------
+  ms-gateway:
+    build: ./ms-gateway
+    ports: ["8080:8080"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - ms-socios
+      - ms-membresias
+      - ms-instructores
+      - ms-clases
+      - ms-reservas
+      - ms-pagos
+      - ms-equipos
+      - ms-rutinas
+      - ms-asistencias
+      - ms-sucursales
+
+volumes:
+  db_socios_data:
+  db_membresias_data:
+  db_instructores_data:
+  db_clases_data:
+  db_reservas_data:
+  db_pagos_data:
+  db_equipos_data:
+  db_rutinas_data:
+  db_asistencias_data:
+  db_sucursales_data:

@@ -1,0 +1,319 @@
+{
+  "info": {
+    "name": "Gimnasio Microservicios",
+    "description": "Coleccion de pruebas para los 10 microservicios del Sistema de Gestion de Gimnasio. Importa esta coleccion en Postman y ejecuta los requests en orden para probar los flujos completos incluyendo comunicacion Feign.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "url_socios",       "value": "http://localhost:8081" },
+    { "key": "url_membresias",   "value": "http://localhost:8082" },
+    { "key": "url_instructores", "value": "http://localhost:8083" },
+    { "key": "url_clases",       "value": "http://localhost:8084" },
+    { "key": "url_reservas",     "value": "http://localhost:8085" },
+    { "key": "url_pagos",        "value": "http://localhost:8086" },
+    { "key": "url_equipos",      "value": "http://localhost:8087" },
+    { "key": "url_rutinas",      "value": "http://localhost:8088" },
+    { "key": "url_asistencias",  "value": "http://localhost:8089" },
+    { "key": "url_sucursales",   "value": "http://localhost:8090" }
+  ],
+  "item": [
+    {
+      "name": "01 - ms-socios",
+      "item": [
+        {
+          "name": "Listar socios",
+          "request": { "method": "GET", "url": "{{url_socios}}/api/socios" }
+        },
+        {
+          "name": "Obtener socio por id",
+          "request": { "method": "GET", "url": "{{url_socios}}/api/socios/1" }
+        },
+        {
+          "name": "Crear socio",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_socios}}/api/socios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Martin\",\n  \"apellido\": \"Lopez\",\n  \"rut\": \"20111222-3\",\n  \"email\": \"martin.lopez@mail.cl\",\n  \"telefono\": \"+56911223344\",\n  \"fechaNacimiento\": \"1999-05-10\",\n  \"estado\": \"ACTIVO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Actualizar socio",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_socios}}/api/socios/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Camila\",\n  \"apellido\": \"Rojas\",\n  \"rut\": \"18234567-2\",\n  \"email\": \"camila.rojas@mail.cl\",\n  \"telefono\": \"+56912345678\",\n  \"fechaNacimiento\": \"1998-03-15\",\n  \"estado\": \"ACTIVO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cambiar estado socio",
+          "request": { "method": "PATCH", "url": "{{url_socios}}/api/socios/1/estado?estado=MOROSO" }
+        },
+        {
+          "name": "Eliminar socio",
+          "request": { "method": "DELETE", "url": "{{url_socios}}/api/socios/99" }
+        }
+      ]
+    },
+    {
+      "name": "02 - ms-membresias",
+      "item": [
+        {
+          "name": "Listar planes",
+          "request": { "method": "GET", "url": "{{url_membresias}}/api/planes" }
+        },
+        {
+          "name": "Crear plan",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_membresias}}/api/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Semestral Plus\",\n  \"descripcion\": \"6 meses con acceso total\",\n  \"duracionMeses\": 6,\n  \"precio\": 130000,\n  \"activo\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar membresias",
+          "request": { "method": "GET", "url": "{{url_membresias}}/api/membresias" }
+        },
+        {
+          "name": "Crear membresia (Feign -> ms-socios)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_membresias}}/api/membresias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"socioId\": 1,\n  \"planId\": 1,\n  \"fechaInicio\": \"2025-01-15\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Consultar membresia vigente por socio (endpoint interno)",
+          "request": { "method": "GET", "url": "{{url_membresias}}/api/membresias/socio/1/vigente" }
+        },
+        {
+          "name": "Cancelar membresia",
+          "request": { "method": "PATCH", "url": "{{url_membresias}}/api/membresias/1/cancelar" }
+        }
+      ]
+    },
+    {
+      "name": "03 - ms-instructores",
+      "item": [
+        {
+          "name": "Listar instructores",
+          "request": { "method": "GET", "url": "{{url_instructores}}/api/instructores" }
+        },
+        {
+          "name": "Crear instructor",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_instructores}}/api/instructores",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sebastian\",\n  \"apellido\": \"Perez\",\n  \"rut\": \"18567890-1\",\n  \"email\": \"sebastian.perez@gym.cl\",\n  \"especialidad\": \"Funcional\",\n  \"aniosExperiencia\": 4,\n  \"activo\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Buscar por especialidad",
+          "request": { "method": "GET", "url": "{{url_instructores}}/api/instructores/especialidad/Yoga" }
+        }
+      ]
+    },
+    {
+      "name": "04 - ms-clases",
+      "item": [
+        {
+          "name": "Listar clases",
+          "request": { "method": "GET", "url": "{{url_clases}}/api/clases" }
+        },
+        {
+          "name": "Listar clases futuras",
+          "request": { "method": "GET", "url": "{{url_clases}}/api/clases/futuras" }
+        },
+        {
+          "name": "Crear clase (Feign -> ms-instructores + ms-sucursales)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_clases}}/api/clases",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Spinning Avanzado\",\n  \"descripcion\": \"Clase intensiva de 45 minutos\",\n  \"instructorId\": 1,\n  \"sucursalId\": 1,\n  \"fechaHora\": \"2026-12-31T18:00:00\",\n  \"duracionMinutos\": 45,\n  \"cupoMaximo\": 20\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - ms-reservas",
+      "item": [
+        {
+          "name": "Listar reservas",
+          "request": { "method": "GET", "url": "{{url_reservas}}/api/reservas" }
+        },
+        {
+          "name": "Reservar clase (Feign -> ms-socios + ms-membresias + ms-clases)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_reservas}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"socioId\": 1,\n  \"claseId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancelar reserva (devuelve cupo via Feign)",
+          "request": { "method": "PATCH", "url": "{{url_reservas}}/api/reservas/1/cancelar" }
+        },
+        {
+          "name": "Marcar asistida",
+          "request": { "method": "PATCH", "url": "{{url_reservas}}/api/reservas/1/asistida" }
+        },
+        {
+          "name": "Reservas por socio",
+          "request": { "method": "GET", "url": "{{url_reservas}}/api/reservas/socio/1" }
+        }
+      ]
+    },
+    {
+      "name": "06 - ms-pagos",
+      "item": [
+        {
+          "name": "Listar pagos",
+          "request": { "method": "GET", "url": "{{url_pagos}}/api/pagos" }
+        },
+        {
+          "name": "Registrar pago (Feign -> ms-socios)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_pagos}}/api/pagos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"socioId\": 1,\n  \"membresiaId\": 1,\n  \"monto\": 65000,\n  \"metodoPago\": \"TARJETA_CREDITO\",\n  \"referencia\": \"TRX-20250115-001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Anular pago",
+          "request": { "method": "PATCH", "url": "{{url_pagos}}/api/pagos/1/anular" }
+        }
+      ]
+    },
+    {
+      "name": "07 - ms-equipos",
+      "item": [
+        {
+          "name": "Listar equipos",
+          "request": { "method": "GET", "url": "{{url_equipos}}/api/equipos" }
+        },
+        {
+          "name": "Crear equipo (Feign -> ms-sucursales)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_equipos}}/api/equipos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cinta de correr Pro X3\",\n  \"tipo\": \"Cardio\",\n  \"codigoInterno\": \"CAR-001\",\n  \"sucursalId\": 1,\n  \"fechaAdquisicion\": \"2023-08-15\",\n  \"estado\": \"OPERATIVO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cambiar estado equipo",
+          "request": { "method": "PATCH", "url": "{{url_equipos}}/api/equipos/1/estado?estado=EN_MANTENIMIENTO" }
+        }
+      ]
+    },
+    {
+      "name": "08 - ms-rutinas",
+      "item": [
+        {
+          "name": "Listar rutinas",
+          "request": { "method": "GET", "url": "{{url_rutinas}}/api/rutinas" }
+        },
+        {
+          "name": "Crear rutina (Feign -> ms-socios + ms-instructores)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_rutinas}}/api/rutinas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Hipertrofia tren superior\",\n  \"objetivo\": \"Ganar masa muscular en torso\",\n  \"socioId\": 1,\n  \"instructorId\": 1,\n  \"duracionSemanas\": 8,\n  \"ejercicios\": [\n    { \"nombre\": \"Press banca\",  \"series\": 4, \"repeticiones\": 10, \"descansoSegundos\": 90 },\n    { \"nombre\": \"Dominadas\",    \"series\": 4, \"repeticiones\": 8,  \"descansoSegundos\": 120 },\n    { \"nombre\": \"Curl biceps\",  \"series\": 3, \"repeticiones\": 12, \"descansoSegundos\": 60 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Rutinas por socio",
+          "request": { "method": "GET", "url": "{{url_rutinas}}/api/rutinas/socio/1" }
+        }
+      ]
+    },
+    {
+      "name": "09 - ms-asistencias",
+      "item": [
+        {
+          "name": "Listar asistencias",
+          "request": { "method": "GET", "url": "{{url_asistencias}}/api/asistencias" }
+        },
+        {
+          "name": "Registrar ingreso (Feign -> ms-socios + ms-sucursales)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_asistencias}}/api/asistencias/ingreso",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"socioId\": 1,\n  \"sucursalId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar salida",
+          "request": { "method": "PATCH", "url": "{{url_asistencias}}/api/asistencias/salida/socio/1" }
+        }
+      ]
+    },
+    {
+      "name": "10 - ms-sucursales",
+      "item": [
+        {
+          "name": "Listar sucursales",
+          "request": { "method": "GET", "url": "{{url_sucursales}}/api/sucursales" }
+        },
+        {
+          "name": "Crear sucursal",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{url_sucursales}}/api/sucursales",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sucursal Nunoa\",\n  \"direccion\": \"Av. Irarrazaval 3300\",\n  \"comuna\": \"Nunoa\",\n  \"telefono\": \"+56229876543\",\n  \"capacidad\": 100,\n  \"horaApertura\": \"06:30\",\n  \"horaCierre\": \"23:00\",\n  \"activa\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Cambiar estado sucursal",
+          "request": { "method": "PATCH", "url": "{{url_sucursales}}/api/sucursales/1/estado?activa=false" }
+        }
+      ]
+    }
+  ]
+}

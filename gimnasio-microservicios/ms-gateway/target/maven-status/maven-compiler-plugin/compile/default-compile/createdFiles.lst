@@ -1,0 +1,2 @@
+com\gimnasio\gateway\GatewayApplication.class
+com\gimnasio\gateway\filter\LoggingGlobalFilter.class
